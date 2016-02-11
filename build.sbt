@@ -30,27 +30,13 @@ val updateFromVersion = ReleaseStep(action = st => {
 val commitDockefiles = ReleaseStep(action = st => {
   val extracted = Project.extract(st)
 
-  val currentVersion = extracted.get(version)
-  val nextFunc = extracted.get(releaseNextVersion)
-  val nextVersion = nextFunc(currentVersion)
+  val nextVersion = extracted.get(version)
 
   val vcs = Git.mkVcs(new File("."))
 
-  getDockerfilesFiles(vcs.baseDir).filter(_.getName == "Dockerfile").foreach(file=> println(file.getName))
+  getDockerfilesFiles(vcs.baseDir).filter(_.getName == "Dockerfile").foreach(file => vcs.add(file.getPath)!! st.log)
 
-  //getDockerfilesFiles(vcs.baseDir).filter(_.getName == "Dockerfile").foreach(file => vcs.add(file.getPath)!! st.log)
-
-  //vcs.commit(s"Updated to ${nextVersion}") ! st.log
-
-  st
-})
-
-val tag = ReleaseStep(action = st => {
-  val extracted = Project.extract(st)
-
-  val currentVersion = extracted.get(version)
-
-  Process(s"""git tag ${currentVersion}""")!
+  vcs.commit(s"Updated to ${nextVersion}") ! st.log
 
   st
 })
@@ -59,8 +45,8 @@ releaseProcess := Seq[ReleaseStep](
   inquireVersions,
   updateFromVersion,
   setNextVersion,
-  commitDockefiles
-  //commitNextVersion
-  //tag,
-  //pushChanges
+  commitDockefiles,
+  commitNextVersion,
+  tagRelease,
+  pushChanges
 )
