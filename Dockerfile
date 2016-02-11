@@ -1,1 +1,1 @@
-FROM panda/centos:1.0
+FROM panda/centos:1.4-SNAPSHOT
